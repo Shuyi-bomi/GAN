@@ -9,6 +9,7 @@ Created on Wed Jul 24 16:48:00 2019
 
 ####### Code for WGAN & WGAN-GP
 from __future__ import print_function
+from preprocess import *
 import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
@@ -23,7 +24,7 @@ import scipy.io as scio
 import math
 import random
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg # mpimg 用于读取图片
+import matplotlib.image as mpimg # mpimg to read image
 from PIL import Image
 
 class WGAN:
@@ -267,7 +268,7 @@ class WGAN:
 
                     
 if __name__ == '__main__':
-    data = preprocess() #obtain data
+    data = getdata() #obtain data
     wgan = WGAN(data) #build class
     wgan.main() #run iterations 
 
