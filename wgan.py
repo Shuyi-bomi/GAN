@@ -3,6 +3,7 @@
 """
 Created on Wed Jul 24 16:48:00 2019
 @author: Shuyi Li
+"""
 
 
 
@@ -96,10 +97,15 @@ class WGAN:
         a= random.randint(0,self.num_complete_minibatches)    
         mini11=self.random_mini_batches()[a]
         return mini11
+    def lrelu(x, leak=0.3, name="lrelu"):
+        with tf.variable_scope(name):
+            f1 = 0.5 * (1 + leak)
+            f2 = 0.5 * (1 - leak)
+            return f1 * x + f2 * abs(x)
 
-    def generator_conv(self,z, lrelu):
+    def generator_conv(self,z):
         train = ly.fully_connected(
-            z, 4 * 4 * 512, activation_fn=lrelu, normalizer_fn=ly.batch_norm)
+            z, 4 * 4 * 512, activation_fn=self.lrelu, normalizer_fn=ly.batch_norm)
         train = tf.reshape(train, (-1, 4, 4, 512))
         #input n*4*4*512 output 8*8*256(1)>23*23*128(2)>69*69*64(3)>69*69*1(4)
         train = ly.conv2d_transpose(train, 256, 3, stride=2,
@@ -113,20 +119,20 @@ class WGAN:
         #print(train.name)
         return train
         
-    def generator_mlp(self, z, lrelu):
+    def generator_mlp(self, z):
     
         train = ly.fully_connected(
-            z, 4 * 4 * 512, activation_fn=lrelu, normalizer_fn=ly.batch_norm)
+            z, 4 * 4 * 512, activation_fn=self.lrelulrelu, normalizer_fn=ly.batch_norm)
         train = ly.fully_connected(
-            train, ngf, activation_fn=lrelu, normalizer_fn=ly.batch_norm)
+            train, ngf, activation_fn=self.lrelulrelu, normalizer_fn=ly.batch_norm)
         train = ly.fully_connected(
-            train, ngf, activation_fn=lrelu, normalizer_fn=ly.batch_norm)
+            train, ngf, activation_fn=self.lrelulrelu, normalizer_fn=ly.batch_norm)
         train = ly.fully_connected(
             train, s*s*channel, activation_fn=tf.nn.tanh, normalizer_fn=ly.batch_norm)
         train = tf.reshape(train, tf.stack([batch_size, s, s, channel])) #batchsize*32*32*3
         return train
         
-    def critic_conv(self, img, lrelu, reuse=False):#69*69*1>23*23*64>12*12*128>4*4*256>2*2*512
+    def critic_conv(self, img, reuse=False):#69*69*1>23*23*64>12*12*128>4*4*256>2*2*512
         with tf.variable_scope('critic') as scope:
             if reuse:
                 scope.reuse_variables()
@@ -134,11 +140,11 @@ class WGAN:
             img = ly.conv2d(img, num_outputs=size, kernel_size=3,
                             stride=3, activation_fn=lrelu)
             img = ly.conv2d(img, num_outputs=size * 2, kernel_size=3,
-                            stride=2,  padding='same', activation_fn=lrelu, normalizer_fn=ly.batch_norm)
+                            stride=2,  padding='same', activation_fn=self.lrelu, normalizer_fn=ly.batch_norm)
             img = ly.conv2d(img, num_outputs=size * 4, kernel_size=3,
-                            stride=3, activation_fn=lrelu, normalizer_fn=ly.batch_norm)
+                            stride=3, activation_fn=self.lrelu, normalizer_fn=ly.batch_norm)
             img = ly.conv2d(img, num_outputs=size * 8, kernel_size=3,
-                            stride=2, activation_fn=lrelu, normalizer_fn=ly.batch_norm)
+                            stride=2, activation_fn=self.lrelu, normalizer_fn=ly.batch_norm)
             logit = ly.fully_connected(tf.reshape(
                 img, [batch_size, -1]), 1, activation_fn=None)
         return logit
@@ -162,11 +168,11 @@ class WGAN:
         noise_dist = tf.contrib.distributions.Normal(0., 1.)
         z = noise_dist.sample((self.batch_size, self.z_dim))
         if not self.is_mlp:
-            generator =  self.generator_conv()
-            critic =  self.critic_conv()
+            generator =  self.generator_conv
+            critic =  self.critic_conv
         else:
-            generator =  generator_mlp()
-            critic =  critic_mlp()
+            generator =  self.generator_mlp
+            critic =  self.critic_mlp
         with tf.variable_scope('generator'):
             train = generator(z)
         real_data = tf.placeholder(
@@ -258,5 +264,11 @@ class WGAN:
                 if i % 1000 == 999:
                     saver.save(sess, os.path.join(
                         ckpt_dir, "model.ckpt"), global_step=i)
+
+                    
+if __name__ == '__main__':
+    data = preprocess() #obtain data
+    wgan = WGAN(data) #build class
+    wgan.main() #run iterations 
 
 
