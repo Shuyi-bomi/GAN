@@ -5,7 +5,7 @@ Created on Wed Jul 17 11:25:04 2019
 
 @author: apple
 """
-
+from preprocess import *
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
