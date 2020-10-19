@@ -17,15 +17,17 @@ import numpy as np
 import scipy.io as scio
  
 #%%
-def getdata():
+def getdata(cnn=True):
+    #obtain corresponding dataset for cnn/mlp as generator/discriminator
     dataFile = './data_planet.mat'
     data = scio.loadmat(dataFile)
     data_train = np.transpose(data['data_single'])
     mm = MinMaxScaler()
     data_train=mm.fit_transform(data_train)
-    #4734>69*69=4761, pad to desired shape
-    data_train1 = np.pad(data_train,((0,0),(14,13)),'constant',constant_values=(0,0))
-    data_train1 = np.reshape(data_train1, (-1, 69, 69)) #none*69*69
-    data_train1 = np.expand_dims(data_train1, -1) #generate dim=4, none*69*69*1
-    data_train1 = data_train1.astype(np.float32)
-    return data_train1
+    if cnn:
+        #4734>69*69=4761, pad to desired shape
+        data_train1 = np.pad(data_train,((0,0),(14,13)),'constant',constant_values=(0,0))
+        data_train1 = np.reshape(data_train1, (-1, 69, 69)) #none*69*69
+        data_train1 = np.expand_dims(data_train1, -1) #generate dim=4, none*69*69*1
+        data_train1 = data_train1.astype(np.float32)
+    return data_train1 if cnn else data_train
