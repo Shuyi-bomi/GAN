@@ -10,7 +10,7 @@ We intend to apply GAN and DCGAN to our data and see how it goes. In order to ap
 But things don't go well. We find loss exploded and will never converge. Because when I apply GANs&DCGAN(design MLP/CNN) to represent G and D separately, I find that it would be easy for D to distinguish fake data/images which G produces from all inputs. So this will lead to training difficulties for G since it doesn’t know how to improve. At this point, D couldn’t converge to 1/2 as well. Like the following figure of loss(DCGAN), we could see that both G and D exploded. Result obtained from GAN is similar.
 
 <p align="middle">
-  <img src="https://github.com/Shuyi-bomi/GAN/blob/main/result/D-loss(CNNs).png" width="450" />
+  <img src="https://github.com/Shuyi-bomi/GAN/blob/main/result/D-loss(CNNs).png" width="410" />
   <img src="https://github.com/Shuyi-bomi/GAN/blob/main/result/G-loss(CNNs).png" width="200" /> 
 </p>
 
