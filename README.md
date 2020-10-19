@@ -28,7 +28,9 @@ We tried all these methods and it turned out WGAN-GP with MLP works best. We pro
 
 So we could see for D it converged to 0.5, which testifies trained G and D work great since 0.5 is the convergence result for D in theoretic proof.
 
-After we obtained the desired network, we then obtain generated/simulated planet images. For the following figure, one image contains 16 data(16 ∗ 4761) simulated and we reshape each to 69 ∗ 69 dimension to visualize it. Every 1000 trainings we generated one image. And this is the one that we train 1000000 times.
+After we obtained the desired network, we then generated/simulated planet images from 'generate.py'. For the following figure, one image contains 16 data(16 ∗ 4761) simulated and we reshape each to 69 ∗ 69 dimension to visualize it. Every 1000 trainings we generated one image. And this is the one that we train 1000000 times.
 <p align="middle">
   <img src="https://github.com/Shuyi-bomi/GAN/blob/main/result/MLPs.png" width="200" />
 </p>
+
+The picture showed general characteristic for planet data, central value is relatively big and spherical is small.
