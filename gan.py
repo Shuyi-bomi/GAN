@@ -143,4 +143,9 @@ class GAN:
                     print('G_loss: {:.4}'.format(G_loss_curr))
                     print()
                     samples = sess.run(G_sample, feed_dict={
-                                       Z: sample_Z(16, self.Z_dim)})  # 16*784
+                                       Z: sample_Z(16, self.Z_dim)})  # 16*4734
+                    
+if __name__ == '__main__':
+    data = getdata(cnn=False) #obtain data
+    gan = GAN() #build class
+    gan.trian(data) #run iterations 
