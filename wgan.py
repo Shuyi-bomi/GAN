@@ -5,8 +5,6 @@ Created on Wed Jul 24 16:48:00 2019
 @author: Shuyi Li
 """
 
-
-
 ####### Code for WGAN & WGAN-GP
 from __future__ import print_function
 from preprocess import *
