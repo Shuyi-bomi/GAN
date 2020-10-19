@@ -2,9 +2,11 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Jul 12 11:33:08 2019
-
 @author: Shuyi Li
+This file to generate images obtained by our trained generator
 """
+
+
 import tensorflow as tf
 import numpy as np
 import matplotlib
@@ -73,3 +75,15 @@ def generate_from_ckpt(a):
     plt.imshow(res)
     plt.show()
     return res
+
+if __name__ == '__main__':
+    batch_size = 64
+    z_dim = 128
+    s = 32
+    s2, s4, s8, s16 =\
+        int(s / 2), int(s / 4), int(s / 8), int(s / 16)
+    is_svhn = True
+    channel = 3 if is_svhn is True else 1
+    ckpt_dir = './ckpt_wgan_svhn'
+    generate_from_ckpt()
+
