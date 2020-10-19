@@ -96,13 +96,16 @@ class WGAN:
         a= random.randint(0,self.num_complete_minibatches)    
         mini11=self.random_mini_batches()[a]
         return mini11
+    
     def lrelu(x, leak=0.3, name="lrelu"):
+        #define customized activarion function
         with tf.variable_scope(name):
             f1 = 0.5 * (1 + leak)
             f2 = 0.5 * (1 - leak)
             return f1 * x + f2 * abs(x)
 
     def generator_conv(self,z):
+        #define cnn as generator 
         train = ly.fully_connected(
             z, 4 * 4 * 512, activation_fn=self.lrelu, normalizer_fn=ly.batch_norm)
         train = tf.reshape(train, (-1, 4, 4, 512))
@@ -119,7 +122,7 @@ class WGAN:
         return train
         
     def generator_mlp(self, z):
-    
+        #define mlp as generator
         train = ly.fully_connected(
             z, 4 * 4 * 512, activation_fn=self.lrelulrelu, normalizer_fn=ly.batch_norm)
         train = ly.fully_connected(
@@ -132,6 +135,7 @@ class WGAN:
         return train
         
     def critic_conv(self, img, reuse=False):#69*69*1>23*23*64>12*12*128>4*4*256>2*2*512
+        #define cnn as discriminator
         with tf.variable_scope('critic') as scope:
             if reuse:
                 scope.reuse_variables()
@@ -149,6 +153,7 @@ class WGAN:
         return logit
     
     def critic_mlp(self, img, reuse=False):
+        #define mlp as discriminator
         with tf.variable_scope('critic') as scope:
             if reuse:
                 scope.reuse_variables()
@@ -164,8 +169,9 @@ class WGAN:
         
     def build_graph(self):
         #build loss, optimizer for generator and critic
-        noise_dist = tf.contrib.distributions.Normal(0., 1.)
+        noise_dist = tf.contrib.distributions.Normal(0., 1.) #input noise z
         z = noise_dist.sample((self.batch_size, self.z_dim))
+        # create generator and discriminator/critic
         if not self.is_mlp:
             generator =  self.generator_conv
             critic =  self.critic_conv
@@ -179,6 +185,7 @@ class WGAN:
         true_logit = critic(real_data)
         fake_logit = critic(train, reuse=True)
         c_loss = tf.reduce_mean(fake_logit - true_logit)
+        # alternative way for weight clipping(wgan-gp), help decrease instability 
         if self.mode is 'gp':
             alpha_dist = tf.contrib.distributions.Uniform(low=0., high=1.)
             alpha = alpha_dist.sample((batch_size, 1, 1, 1))
@@ -209,8 +216,9 @@ class WGAN:
                         optimizer=partial(tf.train.AdamOptimizer, beta1=0.5, beta2=0.9) if self.is_adam is True else tf.train.RMSPropOptimizer, 
                         variables=theta_c, global_step=counter_c,
                         summaries = ['gradient_norm'])
+        # weight clipping for wgan, enforce a Lipschitz constraint on the critic
         if self.mode is 'regular':
-            clipped_var_c = [tf.assign(var, tf.clip_by_value(var, clamp_lower, clamp_upper)) for var in theta_c]
+            clipped_var_c = [tf.assign(var, tf.clip_by_value(var, self.clamp_lower, self.clamp_upper)) for var in theta_c]
             # merge the clip operations on critic variables
             with tf.control_dependencies([opt_c]):
                 opt_c = tf.tuple(clipped_var_c)
@@ -219,14 +227,15 @@ class WGAN:
         return opt_g, opt_c, real_data
         
     def main(self, log_dir = './log_wgan', ckpt_dir = './ckpt_wgan'):
-    # run iteration
+    # train
         if not os.path.exists(ckpt_dir):
             os.makedirs(ckpt_dir)  
         with tf.device(device):
-            opt_g, opt_c, real_data = self.build_graph()
+            opt_g, opt_c, real_data = self.build_graph().  #extract optimizer
         merged_all = tf.summary.merge_all()
         saver = tf.train.Saver()
         config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)
+        #gpu setting
         config.gpu_options.allow_growth = True
         config.gpu_options.per_process_gpu_memory_fraction = 0.8
         with tf.Session(config=config) as sess:
