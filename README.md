@@ -15,9 +15,11 @@ But things don't go well. We find loss exploded and will never converge. Because
 </p>
 
 #WGAN
+
 In exploring the unstable behavior of GAN training, researchers demonstrate that Jensen-Shannon divergence between Pr and Pg is unable to provide useful gradient information to perform Gradient descent when Pr and Pg are disjoint[2, 1]. Then, Wasserstein distance is proposed and combined with Kantorovich-Rubinstein duality to generate new loss function. It’s continuous and differentiable almost everywhere under mild assumptions. To satisfy the mild assumptions, we need to clip the weight within [-c, c].
 
 #WGAN-GP
+
 However, WGAN still exist problem like training instability. Finally researcher finds out gradients may vanish quickly in original weight clipping. Finally, WGAN-GP apply an alternative way in weight clipping by implementing a k-Lipshitz constraint via gradient penalty.
 
 We tried all these methods and it turned out WGAN-GP with MLP works best. We provide its loss figure obtained from Tensorboard visualization tool for G and D:
